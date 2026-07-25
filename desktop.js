@@ -1,7 +1,6 @@
 const { app, BrowserWindow, Tray, Menu, nativeImage, shell, dialog, Notification } = require("electron");
 const { spawn } = require("child_process");
 const path = require("path");
-const { autoUpdater } = require("electron-updater");
 
 let mainWindow, tray, quitting = false, lastAlert = 0;
 const APP_URL = "http://127.0.0.1:4173";
@@ -43,6 +42,7 @@ function monitor() {
   },10000);
 }
 function configureUpdates() {
+  const { autoUpdater } = require("electron-updater");
   autoUpdater.autoDownload=false;
   autoUpdater.autoInstallOnAppQuit=true;
   autoUpdater.on("update-available",info=>{
