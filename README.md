@@ -53,6 +53,16 @@ sayfasından indirebilirsiniz.
 - Dosya yolu tabanlı kalıcı koruma
 - Haftalık RAM/CPU performans özeti
 - Profil JSON içe ve dışa aktarma
+- Dinamik yerel portlar ve her açılışta yenilenen API oturum anahtarı
+- Bozuk ayarlarda güvenli mod, son beş ayar sürümü ve tek tık geri alma
+- Bildirim merkezi, okunmamış sayacı ve ayarlanabilir veri saklama süresi
+- 0–100 sistem sağlık puanı ve RAM/CPU/pagefile/disk darboğaz analizi
+- Süreç bazında disk I/O ve aktif TCP bağlantısı telemetrisi
+- HTML ve JSON performans raporları
+- Tam ekran uygulamalarda otomatik sessiz mod
+- Uygulama/oyun açılışına bağlı otomatik profil geçişi
+- Sistem tepsisinden açılan, enjeksiyonsuz mini performans paneli
+- Yayıncı/imza sınıflandırması ve ağ araçlarını gösteren Güvenlik Merkezi
 
 ## Güvenlik modeli
 
@@ -119,8 +129,8 @@ Yeni bir Git etiketi gönderildiğinde GitHub Actions paketleri otomatik olarak
 üretir, Release'e yükler ve `SHA256SUMS.txt` dosyasını yayınlar:
 
 ```powershell
-git tag -a v1.2.2 -m "Walker RAMMap 1.2.2"
-git push origin v1.2.2
+git tag -a v2.0.0 -m "Walker RAMMap 2.0.0"
+git push origin v2.0.0
 ```
 
 ## Yönetici yetkisi

@@ -1,6 +1,6 @@
 {
   "name": "walker-rammap",
-  "version": "1.4.1",
+  "version": "2.0.0",
   "author": "akgunwalker",
   "private": true,
   "description": "Windows için canlı bellek haritası",
@@ -17,7 +17,7 @@
     "productName": "Walker RAMMap",
     "copyright": "Copyright © 2026 akgunwalker",
     "asar": true,
-    "compression": "store",
+    "compression": "maximum",
     "directories": {
       "output": "release"
     },

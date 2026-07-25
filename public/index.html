@@ -27,6 +27,7 @@
       <div><strong>WALKER</strong><small>RAMMAP · BY AKGUNWALKER</small></div>
     </div>
     <div class="header-actions">
+      <button class="icon-btn notification-button" id="notificationButton" title="Bildirimler">●<b id="notificationCount"></b></button>
       <select id="quickTheme" class="quick-select" title="Tema"><option value="dark">🌙</option><option value="light">☀️</option><option value="system">◐</option><option value="contrast">◩</option></select>
       <select id="quickLanguage" class="quick-select" title="Dil"><option value="tr">TR</option><option value="en">EN</option></select>
       <div class="status"><i></i><span id="statusText">SİSTEME BAĞLANIYOR</span></div>
@@ -92,15 +93,21 @@
     <section class="panel advanced-panel">
       <div class="section-head"><div><p class="kicker">PROFİLLER VE OTOMASYON</p><h2>Gelişmiş kontrol merkezi</h2></div><input id="settingsSearch" class="settings-search" placeholder="Ayar ara…"></div>
       <div class="advanced-grid">
+        <div class="advanced-card" data-setting="profil oyun uygulama tetikleyici"><span>PROFİL TETİKLEYİCİSİ</span><div class="inline"><input id="profileTrigger" placeholder="Oyun.exe"><button id="addProfileTrigger">EKLE</button></div><div id="profileTriggerList" class="mini-list"></div><small>Uygulama açıldığında seçili profil otomatik etkinleşir.</small></div>
+        <div class="advanced-card" data-setting="güvenlik merkez imza koruma oturum"><span>GÜVENLİK MERKEZİ</span><strong id="securityStatus">Denetleniyor…</strong><div id="securityList" class="mini-list"></div></div>
+        <div class="advanced-card" data-setting="saklama geçmiş bildirim temizle"><span>VERİ SAKLAMA</span><div class="inline"><select id="retentionDays"><option value="1">1 gün</option><option value="7">7 gün</option><option value="30">30 gün</option><option value="90">90 gün</option></select><button id="clearNotifications">BİLDİRİMLERİ TEMİZLE</button></div><small>Eski telemetri, denetim ve bildirim kayıtları otomatik silinir.</small></div>
         <div class="advanced-card" data-setting="profil whitelist hedef"><span>AKTİF PROFİL</span><div class="inline"><select id="profileSelect"></select><button id="addProfile">YENİ</button><button id="deleteProfile">SİL</button></div><small>Her profil kendi eşik ve uygulama listelerini kullanır.</small></div>
         <div class="advanced-card" data-setting="zamanlama otomatik saat"><span>ZAMANLANMIŞ KURAL</span><div class="inline"><input id="ruleName" placeholder="Kural adı"><input id="ruleTime" type="time" value="12:00"><button id="addRule">EKLE</button></div><div id="rulesList" class="mini-list"></div></div>
         <div class="advanced-card" data-setting="sessiz saat pil bildirim"><span>DAVRANIŞ</span><label><input id="quietEnabled" type="checkbox"> Sessiz saatler</label><div class="inline"><input id="quietStart" type="time" value="23:00"><input id="quietEnd" type="time" value="08:00"></div><label><input id="batteryDisable" type="checkbox"> Pilde otomasyonu durdur</label></div>
         <div class="advanced-card" data-setting="pagefile disk ağ telemetri"><span>SİSTEM I/O</span><strong id="ioDisk">—</strong><small>disk okuma / yazma</small><strong id="ioNetwork">—</strong><small>ağ / saniye</small><strong id="ioPagefile">—</strong><small>pagefile</small></div>
         <div class="advanced-card" data-setting="rapor optimizasyon simülasyon sonuç"><span>OPTİMİZASYON RAPORU</span><button id="simulate" class="wide-action">ETKİYİ SİMÜLE ET</button><strong id="lastReleased">Henüz çalışmadı</strong><small id="lastAffected">Karşılaştırma bekleniyor</small><strong id="totalReleased">—</strong><small>toplam kazanım</small></div>
-        <div class="advanced-card" data-setting="kayıt audit günlük geri alma"><span>DENETİM GÜNLÜĞÜ</span><div id="auditList" class="mini-list"></div><div class="inline"><a href="http://127.0.0.1:4174/api/diagnostics" target="_blank">TANILAMA RAPORU</a><button id="factoryReset">FABRİKA AYARI</button></div></div>
+        <div class="advanced-card" data-setting="kayıt audit günlük geri alma"><span>DENETİM GÜNLÜĞÜ</span><div id="auditList" class="mini-list"></div><div class="inline"><button id="diagnosticsReport">TANILAMA RAPORU</button><button id="factoryReset">FABRİKA AYARI</button></div></div>
         <div class="advanced-card" data-setting="haftalık özet performans"><span>HAFTALIK ÖZET</span><strong id="weeklyRam">—</strong><small>ortalama / tepe RAM</small><strong id="weeklyCpu">—</strong><small>ortalama CPU</small></div>
         <div class="advanced-card" data-setting="dosya yolu koruma klasör"><span>YOL KORUMASI</span><div class="inline"><input id="protectedPath" placeholder="C:\Program Files\VPN"><button id="addProtectedPath">EKLE</button></div><div id="protectedPathList" class="mini-list"></div><small>Bu klasörlerdeki uygulamalar güvenli kabul edilir.</small></div>
         <div class="advanced-card" data-setting="profil aktar dışa içe yedek"><span>PROFİL AKTARIMI</span><div class="inline"><button id="exportProfiles">DIŞA AKTAR</button><button id="importProfiles">İÇE AKTAR</button><input id="profileFile" type="file" accept=".json" hidden></div><small>Profilleri başka bilgisayara taşıyın.</small></div>
+        <div class="advanced-card health-card" data-setting="sağlık puanı darboğaz analiz"><span>SİSTEM SAĞLIĞI</span><strong id="healthScore">— / 100</strong><small id="bottleneck">Analiz bekleniyor</small><div id="healthFactors" class="mini-list"></div></div>
+        <div class="advanced-card io-process-card" data-setting="süreç disk ağ bağlantı telemetri"><span>SÜREÇ TELEMETRİSİ</span><div id="processIoList" class="mini-list"></div></div>
+        <div class="advanced-card" data-setting="html json csv rapor dışa aktar"><span>PERFORMANS RAPORU</span><div class="inline"><button id="htmlReport">HTML RAPOR</button><button id="jsonReport">JSON RAPOR</button></div><small>Sağlık puanı ve darboğaz analizini dışa aktarın.</small></div>
       </div>
     </section>
     <section class="grid">
@@ -138,6 +145,11 @@
     </section>
   </main>
   <div class="toast" id="toast"></div>
+  <aside class="notification-drawer" id="notificationDrawer">
+    <div class="section-head"><div><p class="kicker">BİLDİRİMLER</p><h2>Bildirim merkezi</h2></div><button id="closeNotifications">×</button></div>
+    <div id="notificationList" class="notification-list"></div>
+    <button id="undoSettings" class="wide-action">SON AYARLARI GERİ AL</button>
+  </aside>
   <dialog id="processDialog" class="process-dialog"><button id="closeProcessDialog">×</button><h2>İşlem güvenlik ayrıntıları</h2><pre id="processDetails"></pre></dialog>
   <footer><span>WALKER SYSTEM TOOLS</span><span>Developed by <a href="https://github.com/akgunwalker" target="_blank" rel="noreferrer">akgunwalker</a></span><span>CANLI WINDOWS TELEMETRİSİ</span></footer>
   <script src="/app.js"></script>
