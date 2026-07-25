@@ -6,8 +6,7 @@ let mainWindow, tray, quitting = false, lastAlert = 0;
 const APP_URL = "http://127.0.0.1:4173";
 
 function trayIcon() {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" rx="7" fill="#090b0f"/><rect x="7" y="16" width="4" height="9" fill="#c8ff3d"/><rect x="14" y="7" width="4" height="18" fill="#c8ff3d"/><rect x="21" y="12" width="4" height="13" fill="#c8ff3d"/></svg>`;
-  return nativeImage.createFromDataURL(`data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`).resize({ width:16, height:16 });
+  return nativeImage.createFromPath(path.join(__dirname,"assets","icon.png")).resize({ width:16, height:16 });
 }
 function showWindow() { if (!mainWindow) return; mainWindow.show(); if (mainWindow.isMinimized()) mainWindow.restore(); mainWindow.focus(); }
 async function post(endpoint) { try { await fetch(`${APP_URL}${endpoint}`, { method:"POST" }); } catch {} }
@@ -43,7 +42,7 @@ function monitor() {
   },10000);
 }
 function createWindow() {
-  mainWindow=new BrowserWindow({width:1440,height:920,minWidth:960,minHeight:680,backgroundColor:"#090b0f",autoHideMenuBar:true,title:"Walker RAMMap",webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});
+  mainWindow=new BrowserWindow({width:1440,height:920,minWidth:960,minHeight:680,backgroundColor:"#090b0f",autoHideMenuBar:true,title:"Walker RAMMap",icon:path.join(__dirname,"assets","icon.png"),webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});
   mainWindow.loadURL(APP_URL);
   mainWindow.webContents.setWindowOpenHandler(({url})=>{if(/^https?:/.test(url))shell.openExternal(url);return{action:"deny"}});
   mainWindow.webContents.on("will-navigate",(e,url)=>{if(!url.startsWith(APP_URL))e.preventDefault()});
