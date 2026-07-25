@@ -49,7 +49,7 @@ const server=http.createServer(async(req,res)=>{
   if(req.url==="/api/weekly")return send(res,200,weekly());
   if(req.url==="/api/audit"&&req.method==="POST"){const b=await body(req);if(b.action==="optimization")state.totalReleased+=Number(b.released||0);save();log(b.action||"event",b);return send(res,200,{success:true})}
   if(req.url==="/api/reset"&&req.method==="POST"){state=structuredClone(defaults);save();log("factory-reset");return send(res,200,state)}
-  if(req.url==="/api/diagnostics"){return send(res,200,{generatedAt:new Date().toISOString(),platform:process.platform,arch:process.arch,version:require("./package.json").version,state:{...state,protectedPaths:state.protectedPaths.map(()=>"REDACTED")},telemetry:await telemetry(),audit:logs().slice(0,50)})}
+  if(req.url==="/api/diagnostics"){return send(res,200,{application:"Walker RAMMap",developer:"akgunwalker",generatedAt:new Date().toISOString(),platform:process.platform,arch:process.arch,version:require("./package.json").version,state:{...state,protectedPaths:state.protectedPaths.map(()=>"REDACTED")},telemetry:await telemetry(),audit:logs().slice(0,50)})}
   send(res,404,{error:"Not found"});
  }catch(e){send(res,500,{error:e.message})}
 });

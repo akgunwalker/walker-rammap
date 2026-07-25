@@ -2,6 +2,7 @@
   <img src="walker-rammap.png" width="180" alt="Walker RAMMap logosu">
   <h1>Walker RAMMap</h1>
   <p>Windows için güvenli, kullanıcı kontrollü RAM ve sistem performansı yöneticisi.</p>
+  <p><strong>Developed by akgunwalker</strong></p>
 
   [![Latest Release](https://img.shields.io/github/v/release/akgunwalker/walker-rammap?style=flat-square)](https://github.com/akgunwalker/walker-rammap/releases/latest)
   [![Windows Release](https://img.shields.io/github/actions/workflow/status/akgunwalker/walker-rammap/release.yml?style=flat-square&label=Windows%20build)](https://github.com/akgunwalker/walker-rammap/actions)
