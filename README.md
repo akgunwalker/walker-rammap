@@ -27,7 +27,7 @@ Taşınabilir Windows `.exe` dosyası üretmek için:
 npm run build:windows
 ```
 
-Çıktı `release/Walker-RAMMap-1.1.0.exe` konumunda oluşturulur.
+Çıktı `release/Walker-RAMMap-1.1.1.exe` konumunda oluşturulur.
 
 ## Optimizasyon
 
@@ -45,3 +45,6 @@ npm run build:windows
 - Sıkıştırılmış bellek 2 GB eşiğini aştığında arayüz optimizasyon önerisi gösterir.
 - GPU kullanımı Windows GPU sayaçlarından, sıcaklık ise donanımın sunduğu ACPI
   sensörlerinden okunur; destek yoksa arayüzde `sensör yok` görünür.
+- GoodByeDPI, WinWS, Zapret, WARP, DNSCrypt, AdGuard, Xray, sing-box, V2Ray,
+  Clash ve Mihomo süreçleri değiştirilemez ağ koruma listesindedir. Hedef
+  listesine eklenseler bile optimize edilmez veya uygulama içinden kapatılamaz.
