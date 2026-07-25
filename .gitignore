@@ -1,0 +1,14 @@
+node_modules/
+release/
+dist/
+dist-incomplete/
+dist-incomplete-2/
+settings.json
+history.jsonl
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+

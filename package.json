@@ -1,0 +1,45 @@
+{
+  "name": "walker-rammap",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Windows için canlı bellek haritası",
+  "scripts": {
+    "start": "node server.js",
+    "desktop": "electron desktop.js",
+    "build:windows": "electron-builder --win portable",
+    "release": "electron-builder --win portable --publish always"
+  },
+  "main": "desktop.js",
+  "build": {
+    "appId": "com.walker.rammap",
+    "productName": "Walker RAMMap",
+    "asar": true,
+    "compression": "store",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "desktop.js",
+      "server.js",
+      "public/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable",
+      "artifactName": "Walker-RAMMap-${version}.exe"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "akgunwalker",
+      "repo": "walker-rammap",
+      "releaseType": "release"
+    }
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "electron": "^43.2.0",
+    "electron-builder": "^26.15.3"
+  }
+}

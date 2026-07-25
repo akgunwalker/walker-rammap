@@ -1,0 +1,50 @@
+name: Windows Release
+
+on:
+  push:
+    tags:
+      - "v*"
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Kaynak kodu al
+        uses: actions/checkout@v4
+
+      - name: Node.js kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Bağımlılıkları kur
+        run: npm ci
+
+      - name: JavaScript doğrulaması
+        run: |
+          node --check server.js
+          node --check desktop.js
+          node --check public/app.js
+
+      - name: Windows paketini üret ve yayınla
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        run: npx electron-builder --win portable --publish always
+
+      - name: SHA-256 dosyası oluştur
+        shell: pwsh
+        run: |
+          $file = Get-ChildItem release/Walker-RAMMap-*.exe | Select-Object -First 1
+          $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash
+          "$hash  $($file.Name)" | Set-Content release/SHA256SUMS.txt
+
+      - name: SHA-256 değerini Release'e ekle
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: gh release upload "${{ github.ref_name }}" release/SHA256SUMS.txt --clobber

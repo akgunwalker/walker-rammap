@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090b0f">
+  <title>Walker RAMMap</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="noise"></div>
+  <header>
+    <div class="brand">
+      <div class="mark"><span></span><span></span><span></span></div>
+      <div><strong>WALKER</strong><small>RAMMAP</small></div>
+    </div>
+    <div class="header-actions">
+      <div class="status"><i></i><span id="statusText">SİSTEME BAĞLANIYOR</span></div>
+      <button class="icon-btn" id="refresh" title="Yenile">↻</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">FİZİKSEL BELLEK / <span id="machine">YEREL MAKİNE</span></p>
+        <h1>Belleğin,<br><em>haritalandı.</em></h1>
+      </div>
+      <div class="hero-stat">
+        <div class="ring" id="ring"><div><strong id="usedPercent">—</strong><span>KULLANIM</span></div></div>
+        <div class="total"><span>TOPLAM KAPASİTE</span><strong id="total">—</strong></div>
+      </div>
+    </section>
+
+    <section class="composition panel">
+      <div class="section-head">
+        <div><p class="kicker">01 / BELLEK BİLEŞİMİ</p><h2>Anlık dağılım</h2></div>
+        <div class="time" id="time">—</div>
+      </div>
+      <div class="memory-bar" id="memoryBar"></div>
+      <div class="legend">
+        <div><i class="used"></i><span>KULLANIMDA</span><strong id="used">—</strong></div>
+        <div><i class="cached"></i><span>ÖNBELLEK</span><strong id="cached">—</strong></div>
+        <div><i class="free"></i><span>BOŞ</span><strong id="free">—</strong></div>
+      </div>
+    </section>
+
+    <section class="control-grid">
+      <button class="action-card primary" id="optimize"><span class="action-icon">⚡</span><span><small>TEK TIK</small><strong>RAM'i optimize et</strong><em>Çalışma setlerini güvenle küçült</em></span></button>
+      <button class="action-card" id="gameMode"><span class="action-icon">◈</span><span><small>ODAK</small><strong>Oyun Modu</strong><em>Arka plan uygulamalarını durdur</em></span></button>
+      <button class="action-card" id="standby"><span class="action-icon">⌁</span><span><small>SİSTEM</small><strong>Standby temizle</strong><em>Yönetici yetkisi gerektirir</em></span></button>
+    </section>
+    <section class="automation panel">
+      <div><p class="kicker">OTOMASYON</p><h2>Akıllı optimizasyon</h2></div>
+      <label class="setting"><span><strong>Otomatik temizlik</strong><small>RAM eşiği aşılınca optimize et</small></span><input type="checkbox" id="autoClean"><i></i></label>
+      <label class="threshold"><span>EŞİK</span><input type="range" id="threshold" min="50" max="95" value="85"><strong id="thresholdValue">%85</strong></label>
+      <label class="setting"><span><strong>Windows ile başlat</strong><small>Oturum açılışında RAMMap'i çalıştır</small></span><input type="checkbox" id="startup"><i></i></label>
+    </section>
+    <section class="safety panel">
+      <div class="safety-copy"><p class="kicker">GÜVENLİ OPTİMİZASYON</p><h2>Kontrol sizde</h2><p>Optimizasyon seçtiğiniz uygulamaların belleğini azaltabilir. İlk kullanımda kısa süreli yavaş tepki görülebilir. Beyaz listedeki oyun ve iş uygulamalarına dokunulmaz.</p></div>
+      <div class="list-editor">
+        <label><span>🟢 BEYAZ LİSTE</span><div id="whitelistChips" class="chips"></div><div class="add-row"><input id="whitelistInput" placeholder="örn. Discord"><button data-add="whitelist">EKLE</button></div></label>
+        <label><span>🔴 OPTİMİZE EDİLECEKLER</span><div id="targetChips" class="chips"></div><div class="add-row"><input id="targetInput" placeholder="işlem adı"><button data-add="targets">EKLE</button></div></label>
+        <label><span>🎮 OYUNLAR</span><div id="gameChips" class="chips"></div><div class="add-row"><input id="gameInput" placeholder="oyun işlem adı"><button data-add="games">EKLE</button></div></label>
+      </div>
+    </section>
+    <section class="insight-grid">
+      <article class="panel history-panel">
+        <div class="section-head"><div><p class="kicker">GEÇMİŞ / 24 SAAT</p><h2>Bellek eğilimi</h2></div><a class="text-button" href="/api/export.csv">CSV İNDİR</a></div>
+        <canvas id="historyChart" width="900" height="180"></canvas>
+      </article>
+      <article class="panel intelligence">
+        <div class="section-head"><div><p class="kicker">AKILLI ANALİZ</p><h2>Öneriler ve kaçaklar</h2></div><span id="gameStatus" class="game-status">OYUN BEKLENİYOR</span></div>
+        <div id="insights"><div class="empty">Analiz için veri toplanıyor…</div></div>
+        <div class="utility-actions"><a href="/api/backup" target="_blank">AYAR YEDEĞİ</a><button id="restoreButton">YEDEK GERİ YÜKLE</button><input type="file" id="restoreFile" accept=".json" hidden><button id="versionCheck">GÜNCELLEME KONTROLÜ</button></div>
+      </article>
+    </section>
+    <section class="grid">
+      <article class="panel processes">
+        <div class="section-head">
+          <div><p class="kicker">02 / SÜREÇLER</p><h2>Bellek tüketimi</h2></div>
+          <label class="search"><span>⌕</span><input id="search" placeholder="Süreç ara…" autocomplete="off"></label>
+        </div>
+        <div class="table-head"><span>SÜREÇ</span><span>PID</span><span>ÖZEL</span><span>İŞLEM</span></div>
+        <div class="process-list" id="processList"><div class="empty">Veri bekleniyor…</div></div>
+      </article>
+
+      <aside>
+        <article class="panel telemetry">
+          <p class="kicker">03 / TELEMETRİ</p>
+          <h2>Sistem yükü</h2>
+          <div class="chart-key"><span><i></i> RAM</span><span><i></i> CPU <b id="cpuValue">—</b></span></div>
+          <canvas id="chart" width="600" height="210"></canvas>
+          <div class="chart-labels"><span>60 SN ÖNCE</span><span>ŞİMDİ</span></div>
+        </article>
+        <article class="panel metrics">
+          <div><span>COMMIT</span><strong id="commit">—</strong><small id="commitLimit">limit —</small></div>
+          <div><span>PAGED POOL</span><strong id="paged">—</strong><small>çekirdek belleği</small></div>
+          <div><span>NON-PAGED</span><strong id="nonPaged">—</strong><small>çekirdek belleği</small></div>
+          <div><span>PAGE I/O</span><strong id="pageIo">—</strong><small>işlem / saniye</small></div>
+        </article>
+        <article class="panel sensor-metrics">
+          <div><span>SIKIŞTIRILMIŞ RAM</span><strong id="compressed">—</strong></div>
+          <div><span>STANDBY RAM</span><strong id="standbyRam">—</strong></div>
+          <div><span>MODIFIED RAM</span><strong id="modifiedRam">—</strong></div>
+          <div><span>GPU</span><strong id="gpu">—</strong></div>
+          <div><span>SICAKLIK</span><strong id="temperature">sensör yok</strong></div>
+        </article>
+      </aside>
+    </section>
+  </main>
+  <div class="toast" id="toast"></div>
+  <footer><span>WALKER SYSTEM TOOLS</span><span>CANLI WINDOWS TELEMETRİSİ</span></footer>
+  <script src="/app.js"></script>
+</body>
+</html>

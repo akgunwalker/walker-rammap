@@ -1,0 +1,31 @@
+name: Hata bildirimi
+description: Walker RAMMap için hata bildirin
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Sorun
+      description: Ne olduğunu ve beklediğiniz davranışı açıklayın.
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows sürümü
+    validations:
+      required: true
+  - type: input
+    id: app-version
+    attributes:
+      label: Walker RAMMap sürümü
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Tekrarlama adımları
+    validations:
+      required: true
+
