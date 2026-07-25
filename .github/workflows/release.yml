@@ -35,12 +35,11 @@ jobs:
       - name: SBOM oluştur
         run: npm sbom --sbom-format cyclonedx > release-sbom.json
 
-      - name: Windows paketini üret ve yayınla
+      - name: Windows paketlerini üret
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-        run: npx electron-builder --win nsis portable --publish always
+        run: npx electron-builder --win nsis portable
 
       - name: SHA-256 dosyası oluştur
         shell: pwsh
@@ -50,14 +49,16 @@ jobs:
             "$hash  $($_.Name)"
           } | Set-Content release/SHA256SUMS.txt
 
-      - name: SHA-256 değerini Release'e ekle
+      - name: Tek GitHub Release oluştur
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: pwsh
-        run: gh release upload "${{ github.ref_name }}" release/SHA256SUMS.txt --clobber
-
-      - name: SBOM dosyasını Release'e ekle
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: pwsh
-        run: gh release upload "${{ github.ref_name }}" release-sbom.json --clobber
+        run: |
+          gh release create "${{ github.ref_name }}" `
+            release/Walker-RAMMap-Setup-*.exe `
+            release/Walker-RAMMap-Setup-*.exe.blockmap `
+            release/Walker-RAMMap-Portable-*.exe `
+            release/latest.yml `
+            release/SHA256SUMS.txt `
+            release-sbom.json `
+            --generate-notes --latest
