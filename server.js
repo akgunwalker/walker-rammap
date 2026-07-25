@@ -14,8 +14,14 @@ const defaults = {
 };
 const NETWORK_PROTECTED = [
   "goodbyedpi","winws","zapret","blockcheck","xray","sing-box","v2ray",
-  "clash","clash-verge","mihomo","warp-svc","cloudflare-warp",
-  "dnscrypt-proxy","adguardsvc","adguard","simplednscrypt"
+  "clash","clash-verge","mihomo","splitware","splitwire",
+  "warp-svc","cloudflare-warp","tailscale","tailscaled","wireguard",
+  "openvpn","openvpnserv","openvpnservice","protonvpn","protonvpn-service",
+  "nordvpn","nordvpn-service","mullvad-vpn","mullvad-daemon",
+  "surfshark","expressvpn","windscribe","zerotier-one",
+  "dnscrypt-proxy","simplednscrypt","dnsjumper","yogadns","acrylicservice",
+  "dnsagent","technitiumdnsserver","nextdns","controld","stubby","unbound",
+  "adguardsvc","adguard","adguardvpn","adguardvpn-service"
 ];
 let settings = loadSettings(), lastAutoClean = 0, lastHistory = 0, gameActive = false, processSamples = new Map(), previousPowerPlan = "";
 function loadSettings(){try{return{...defaults,...JSON.parse(fs.readFileSync(SETTINGS_FILE,"utf8"))}}catch{return{...defaults}}}

@@ -49,3 +49,6 @@ paketler olarak oluşturulur.
 - GoodByeDPI, WinWS, Zapret, WARP, DNSCrypt, AdGuard, Xray, sing-box, V2Ray,
   Clash ve Mihomo süreçleri değiştirilemez ağ koruma listesindedir. Hedef
   listesine eklenseler bile optimize edilmez veya uygulama içinden kapatılamaz.
+- Splitware/SplitWire, WireGuard, OpenVPN, Tailscale, Proton VPN, NordVPN,
+  Mullvad, NextDNS, Control D, YogaDNS, Technitium DNS ve benzeri DNS/VPN
+  servisleri de aynı değiştirilemez koruma kapsamındadır.
