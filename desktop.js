@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Tray, Menu, nativeImage, shell, dialog, Notification } = require("electron");
 const { spawn } = require("child_process");
 const path = require("path");
+const { autoUpdater } = require("electron-updater");
 
 let mainWindow, tray, quitting = false, lastAlert = 0;
 const APP_URL = "http://127.0.0.1:4173";
@@ -41,6 +42,20 @@ function monitor() {
     } catch {}
   },10000);
 }
+function configureUpdates() {
+  autoUpdater.autoDownload=false;
+  autoUpdater.autoInstallOnAppQuit=true;
+  autoUpdater.on("update-available",info=>{
+    const notice=new Notification({title:"Walker RAMMap güncellemesi",body:`${info.version} sürümü hazır. İndirmek için bildirime tıklayın.`,icon:trayIcon()});
+    notice.on("click",()=>autoUpdater.downloadUpdate());notice.show();
+  });
+  autoUpdater.on("update-downloaded",()=>{
+    const notice=new Notification({title:"Güncelleme hazır",body:"Kurmak için tıklayın. Walker RAMMap yeniden başlatılacak.",icon:trayIcon()});
+    notice.on("click",()=>{quitting=true;autoUpdater.quitAndInstall(false,true)});notice.show();
+  });
+  setTimeout(()=>autoUpdater.checkForUpdates().catch(()=>{}),8000);
+  setInterval(()=>autoUpdater.checkForUpdates().catch(()=>{}),6*60*60*1000);
+}
 function createWindow() {
   mainWindow=new BrowserWindow({width:1440,height:920,minWidth:960,minHeight:680,backgroundColor:"#090b0f",autoHideMenuBar:true,title:"Walker RAMMap",icon:path.join(__dirname,"assets","icon.png"),webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});
   mainWindow.loadURL(APP_URL);
@@ -54,7 +69,7 @@ if(!app.requestSingleInstanceLock())app.quit();else{
   app.whenReady().then(()=>{
     process.env.WALKER_DESKTOP="1";process.env.WALKER_DATA_DIR=app.getPath("userData");
     require("./server");
-    createWindow();tray=new Tray(trayIcon());tray.on("double-click",showWindow);rebuildTray();monitor();
+    createWindow();tray=new Tray(trayIcon());tray.on("double-click",showWindow);rebuildTray();monitor();if(app.isPackaged)configureUpdates();
   }).catch(e=>{dialog.showErrorBox("Walker RAMMap başlatılamadı",e.message);app.quit()});
   app.on("before-quit",()=>{quitting=true});
   app.on("window-all-closed",()=>{});

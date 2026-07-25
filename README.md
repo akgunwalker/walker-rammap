@@ -27,7 +27,8 @@ Taşınabilir Windows `.exe` dosyası üretmek için:
 npm run build:windows
 ```
 
-Çıktı `release/Walker-RAMMap-1.1.2.exe` konumunda oluşturulur.
+Çıktılar `release/Walker-RAMMap-1.2.0-x64.exe` adıyla installer ve portable
+paketler olarak oluşturulur.
 
 ## Optimizasyon
 

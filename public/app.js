@@ -4,6 +4,19 @@ const cpuHistory = [];
 let processes = [];
 let loading = false;
 let currentSettings = { whitelist:[], targets:[], games:[] };
+const translations={
+  tr:{welcome:"Walker RAMMap'e hoş geldiniz",welcomeText:"Görünümü ve temel otomasyonu birkaç saniyede ayarlayın.",language:"Dil",theme:"Tema",autoSetup:"RAM %85'i aşınca otomatik optimize et",start:"BAŞLA"},
+  en:{welcome:"Welcome to Walker RAMMap",welcomeText:"Configure appearance and basic automation in seconds.",language:"Language",theme:"Theme",autoSetup:"Automatically optimize when RAM exceeds 85%",start:"GET STARTED"}
+};
+function applyAppearance(theme,language){
+  const actual=theme==="system"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):theme;
+  document.documentElement.dataset.theme=actual;document.documentElement.lang=language;
+  $("quickTheme").value=theme;$("quickLanguage").value=language;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{const value=translations[language]?.[el.dataset.i18n];if(value)el.textContent=value});
+  localStorage.setItem("walkerAppearance",JSON.stringify({theme,language}));
+}
+const appearance=JSON.parse(localStorage.getItem("walkerAppearance")||'{"theme":"dark","language":"tr"}');
+applyAppearance(appearance.theme,appearance.language);
 
 const bytes = (n) => {
   if (!Number.isFinite(Number(n))) return "—";
@@ -156,6 +169,14 @@ $("startup").addEventListener("change",saveSettings);
 $("threshold").addEventListener("input",()=>$("thresholdValue").textContent=`%${$("threshold").value}`);
 $("threshold").addEventListener("change",saveSettings);
 loadSettings();
+$("quickTheme").addEventListener("change",()=>applyAppearance($("quickTheme").value,$("quickLanguage").value));
+$("quickLanguage").addEventListener("change",()=>applyAppearance($("quickTheme").value,$("quickLanguage").value));
+if(!localStorage.getItem("walkerSetupComplete")){$("setupWizard").hidden=false;$("setupTheme").value=appearance.theme;$("setupLanguage").value=appearance.language}
+$("finishSetup").addEventListener("click",async()=>{
+  applyAppearance($("setupTheme").value,$("setupLanguage").value);
+  if($("setupAuto").checked){$("autoClean").checked=true;await saveSettings()}
+  localStorage.setItem("walkerSetupComplete","1");$("setupWizard").hidden=true;
+});
 function renderInsights(data) {
   const leaks=data.leaks||[], suggestions=data.suggestions||[];
   const items=[

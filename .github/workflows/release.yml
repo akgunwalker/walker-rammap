@@ -39,9 +39,10 @@ jobs:
       - name: SHA-256 dosyası oluştur
         shell: pwsh
         run: |
-          $file = Get-ChildItem release/Walker-RAMMap-*.exe | Select-Object -First 1
-          $hash = (Get-FileHash $file.FullName -Algorithm SHA256).Hash
-          "$hash  $($file.Name)" | Set-Content release/SHA256SUMS.txt
+          Get-ChildItem release/Walker-RAMMap-*.exe | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash
+            "$hash  $($_.Name)"
+          } | Set-Content release/SHA256SUMS.txt
 
       - name: SHA-256 değerini Release'e ekle
         env:

@@ -8,6 +8,17 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+  <div class="setup-overlay" id="setupWizard" hidden>
+    <section class="setup-card">
+      <img src="/walker-rammap.png" alt="Walker RAMMap">
+      <p class="kicker">İLK KURULUM</p><h2 data-i18n="welcome">Walker RAMMap'e hoş geldiniz</h2>
+      <p data-i18n="welcomeText">Görünümü ve temel otomasyonu birkaç saniyede ayarlayın.</p>
+      <label><span data-i18n="language">Dil</span><select id="setupLanguage"><option value="tr">Türkçe</option><option value="en">English</option></select></label>
+      <label><span data-i18n="theme">Tema</span><select id="setupTheme"><option value="dark">Koyu</option><option value="light">Açık</option><option value="system">Sistem</option><option value="contrast">Yüksek kontrast</option></select></label>
+      <label class="wizard-check"><input type="checkbox" id="setupAuto"><span data-i18n="autoSetup">RAM %85'i aşınca otomatik optimize et</span></label>
+      <button id="finishSetup" data-i18n="start">BAŞLA</button>
+    </section>
+  </div>
   <div class="noise"></div>
   <header>
     <div class="brand">
@@ -15,6 +26,8 @@
       <div><strong>WALKER</strong><small>RAMMAP</small></div>
     </div>
     <div class="header-actions">
+      <select id="quickTheme" class="quick-select" title="Tema"><option value="dark">🌙</option><option value="light">☀️</option><option value="system">◐</option><option value="contrast">◩</option></select>
+      <select id="quickLanguage" class="quick-select" title="Dil"><option value="tr">TR</option><option value="en">EN</option></select>
       <div class="status"><i></i><span id="statusText">SİSTEME BAĞLANIYOR</span></div>
       <button class="icon-btn" id="refresh" title="Yenile">↻</button>
     </div>
