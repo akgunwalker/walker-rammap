@@ -29,6 +29,12 @@ jobs:
           node --check desktop.js
           node --check public/app.js
 
+      - name: Otomatik testler
+        run: npm test
+
+      - name: SBOM oluştur
+        run: npm sbom --sbom-format cyclonedx > release-sbom.json
+
       - name: Windows paketini üret ve yayınla
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -49,3 +55,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: pwsh
         run: gh release upload "${{ github.ref_name }}" release/SHA256SUMS.txt --clobber
+
+      - name: SBOM dosyasını Release'e ekle
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: gh release upload "${{ github.ref_name }}" release-sbom.json --clobber

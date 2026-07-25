@@ -1,11 +1,12 @@
 {
   "name": "walker-rammap",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "private": true,
   "description": "Windows için canlı bellek haritası",
   "scripts": {
     "start": "node server.js",
     "desktop": "electron desktop.js",
+    "test": "node --test test/*.test.js",
     "build:windows": "electron-builder --win nsis portable",
     "release": "electron-builder --win nsis portable --publish always"
   },
@@ -21,6 +22,7 @@
     "files": [
       "desktop.js",
       "server.js",
+      "advanced-server.js",
       "assets/**/*",
       "public/**/*",
       "package.json"

@@ -88,6 +88,17 @@
         <div class="utility-actions"><a href="/api/backup" target="_blank">AYAR YEDEĞİ</a><button id="restoreButton">YEDEK GERİ YÜKLE</button><input type="file" id="restoreFile" accept=".json" hidden><button id="versionCheck">GÜNCELLEME KONTROLÜ</button></div>
       </article>
     </section>
+    <section class="panel advanced-panel">
+      <div class="section-head"><div><p class="kicker">PROFİLLER VE OTOMASYON</p><h2>Gelişmiş kontrol merkezi</h2></div><input id="settingsSearch" class="settings-search" placeholder="Ayar ara…"></div>
+      <div class="advanced-grid">
+        <div class="advanced-card" data-setting="profil whitelist hedef"><span>AKTİF PROFİL</span><div class="inline"><select id="profileSelect"></select><button id="addProfile">YENİ</button><button id="deleteProfile">SİL</button></div><small>Her profil kendi eşik ve uygulama listelerini kullanır.</small></div>
+        <div class="advanced-card" data-setting="zamanlama otomatik saat"><span>ZAMANLANMIŞ KURAL</span><div class="inline"><input id="ruleName" placeholder="Kural adı"><input id="ruleTime" type="time" value="12:00"><button id="addRule">EKLE</button></div><div id="rulesList" class="mini-list"></div></div>
+        <div class="advanced-card" data-setting="sessiz saat pil bildirim"><span>DAVRANIŞ</span><label><input id="quietEnabled" type="checkbox"> Sessiz saatler</label><div class="inline"><input id="quietStart" type="time" value="23:00"><input id="quietEnd" type="time" value="08:00"></div><label><input id="batteryDisable" type="checkbox"> Pilde otomasyonu durdur</label></div>
+        <div class="advanced-card" data-setting="pagefile disk ağ telemetri"><span>SİSTEM I/O</span><strong id="ioDisk">—</strong><small>disk okuma / yazma</small><strong id="ioNetwork">—</strong><small>ağ / saniye</small><strong id="ioPagefile">—</strong><small>pagefile</small></div>
+        <div class="advanced-card" data-setting="rapor optimizasyon sonuç"><span>SON OPTİMİZASYON</span><strong id="lastReleased">Henüz çalışmadı</strong><small id="lastAffected">Karşılaştırma bekleniyor</small><strong id="totalReleased">—</strong><small>toplam kazanım</small></div>
+        <div class="advanced-card" data-setting="kayıt audit günlük geri alma"><span>DENETİM GÜNLÜĞÜ</span><div id="auditList" class="mini-list"></div><div class="inline"><a href="http://127.0.0.1:4174/api/diagnostics" target="_blank">TANILAMA RAPORU</a><button id="factoryReset">FABRİKA AYARI</button></div></div>
+      </div>
+    </section>
     <section class="grid">
       <article class="panel processes">
         <div class="section-head">

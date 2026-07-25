@@ -38,6 +38,14 @@ sayfasından indirebilirsiniz.
 - İlk açılış sihirbazı
 - Türkçe ve İngilizce arayüz
 - Koyu, açık, sistem ve yüksek kontrast temaları
+- Özel profiller ve profil başına whitelist/hedef/eşik ayarları
+- Saat ve gün bazlı zamanlanmış optimizasyon kuralları
+- Sessiz saatler ve pilde otomasyonu durdurma
+- Canlı disk, ağ ve pagefile telemetrisi
+- Optimizasyon öncesi/sonrası kazanım raporu ve toplam kazanılan bellek
+- Yerel denetim günlüğü ve anonimleştirilmiş tanılama raporu
+- Aranabilir ve sürüklenerek düzenlenebilir gelişmiş dashboard
+- `Ctrl+Shift+O` hızlı optimizasyon kısayolu
 
 ## Güvenlik modeli
 

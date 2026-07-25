@@ -131,6 +131,11 @@ async function runAction(id, endpoint) {
     const response=await fetch(endpoint,{method:"POST"}), data=await response.json();
     if(!response.ok) throw new Error(data.error);
     const detail=data.released ? `${bytes(data.released)} kullanılabilir alan kazanıldı.` : data.stopped ? `${data.stopped.length} arka plan uygulaması durduruldu.` : "İşlem tamamlandı.";
+    if(id==="optimize"){
+      $("lastReleased").textContent=bytes(data.released||0);
+      $("lastAffected").textContent=`${data.affected||0} süreç etkilendi`;
+      fetch("http://127.0.0.1:4174/api/audit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"optimization",released:data.released||0,affected:data.affected||0,names:data.names||[]})}).catch(()=>{});
+    }
     toast(detail); setTimeout(refresh,600);
   } catch(error) { toast(error.message || "İşlem başarısız.",true); }
   finally { button.disabled=false; button.classList.remove("working"); }
@@ -207,3 +212,37 @@ $("restoreFile").addEventListener("change",async event=>{
   try{const backup=JSON.parse(await event.target.files[0].text());const r=await fetch("/api/restore",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(backup)}),d=await r.json();if(!r.ok)throw new Error(d.error);toast("Ayar yedeği geri yüklendi.");loadSettings()}catch(e){toast(`Yedek yüklenemedi: ${e.message}`,true)}event.target.value="";
 });
 loadHistory();setInterval(loadHistory,60000);
+
+let advancedState;
+const advancedUrl="http://127.0.0.1:4174/api";
+async function saveAdvanced(patch){
+  advancedState={...advancedState,...patch};
+  await fetch(`${advancedUrl}/state`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(advancedState)});
+  renderAdvanced();
+}
+function renderAdvanced(){
+  if(!advancedState)return;
+  $("profileSelect").innerHTML=advancedState.profiles.map(p=>`<option ${p.name===advancedState.activeProfile?"selected":""}>${escapeHtml(p.name)}</option>`).join("");
+  $("rulesList").innerHTML=advancedState.schedules.map((r,i)=>`<div>${escapeHtml(r.name)} · ${r.time} <button data-rule-remove="${i}">×</button></div>`).join("")||"<div>Kural yok</div>";
+  $("quietEnabled").checked=advancedState.quietHours.enabled;$("quietStart").value=advancedState.quietHours.start;$("quietEnd").value=advancedState.quietHours.end;$("batteryDisable").checked=advancedState.disableOnBattery;
+  $("totalReleased").textContent=bytes(advancedState.totalReleased||0);
+}
+async function loadAdvanced(){
+  try{
+    const data=await fetch(`${advancedUrl}/state`).then(r=>r.json());advancedState=data.state;renderAdvanced();
+    const t=data.telemetry;$("ioDisk").textContent=`${bytes(t.diskRead)}/s · ${bytes(t.diskWrite)}/s`;$("ioNetwork").textContent=`${bytes(t.network)}/s`;$("ioPagefile").textContent=`${bytes(t.pagefileUsed)} / ${bytes(t.pagefileAllocated)}`;
+    $("auditList").innerHTML=data.audit.slice(0,6).map(x=>`<div>${new Date(x.time).toLocaleTimeString("tr-TR")} · ${escapeHtml(x.action)}</div>`).join("")||"<div>Kayıt yok</div>";
+  }catch{}
+}
+$("addProfile").addEventListener("click",()=>{const name=prompt("Profil adı");if(!name)return;advancedState.profiles.push({name,threshold:Number($("threshold").value),whitelist:[...currentSettings.whitelist],targets:[...currentSettings.targets]});saveAdvanced({activeProfile:name})});
+$("deleteProfile").addEventListener("click",()=>{if(advancedState.profiles.length===1)return toast("En az bir profil kalmalı.",true);advancedState.profiles=advancedState.profiles.filter(p=>p.name!==advancedState.activeProfile);saveAdvanced({activeProfile:advancedState.profiles[0].name})});
+$("profileSelect").addEventListener("change",async()=>{const p=advancedState.profiles.find(x=>x.name===$("profileSelect").value);await saveAdvanced({activeProfile:p.name});currentSettings.whitelist=[...p.whitelist];currentSettings.targets=[...p.targets];$("threshold").value=p.threshold;await saveSettings()});
+$("addRule").addEventListener("click",()=>{const name=$("ruleName").value.trim()||"Optimizasyon";advancedState.schedules.push({name,time:$("ruleTime").value,days:[0,1,2,3,4,5,6],enabled:true});$("ruleName").value="";saveAdvanced({schedules:advancedState.schedules})});
+$("rulesList").addEventListener("click",e=>{const b=e.target.closest("[data-rule-remove]");if(!b)return;advancedState.schedules.splice(Number(b.dataset.ruleRemove),1);saveAdvanced({schedules:advancedState.schedules})});
+for(const id of["quietEnabled","quietStart","quietEnd","batteryDisable"])$(id).addEventListener("change",()=>saveAdvanced({quietHours:{enabled:$("quietEnabled").checked,start:$("quietStart").value,end:$("quietEnd").value},disableOnBattery:$("batteryDisable").checked}));
+$("factoryReset").addEventListener("click",async()=>{if(!confirm("Gelişmiş ayarlar fabrika değerlerine döndürülsün mü?"))return;advancedState=await fetch(`${advancedUrl}/reset`,{method:"POST"}).then(r=>r.json());renderAdvanced();toast("Gelişmiş ayarlar sıfırlandı.")});
+$("settingsSearch").addEventListener("input",()=>{const q=$("settingsSearch").value.toLowerCase();document.querySelectorAll(".advanced-card").forEach(x=>x.hidden=!x.dataset.setting.includes(q))});
+document.addEventListener("keydown",e=>{if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==="o"){$("optimize").click();e.preventDefault()}});
+document.querySelectorAll(".advanced-card").forEach(x=>{x.draggable=true;x.addEventListener("dragstart",()=>x.classList.add("dragging"));x.addEventListener("dragend",()=>x.classList.remove("dragging"))});
+document.querySelector(".advanced-grid").addEventListener("dragover",e=>{e.preventDefault();const active=document.querySelector(".advanced-card.dragging"),after=[...document.querySelectorAll(".advanced-card:not(.dragging)")].find(x=>e.clientY<x.getBoundingClientRect().top+x.offsetHeight/2);document.querySelector(".advanced-grid").insertBefore(active,after||null);localStorage.setItem("walkerDashboard",JSON.stringify([...document.querySelectorAll(".advanced-card")].map(x=>x.dataset.setting)))});
+loadAdvanced();setInterval(loadAdvanced,10000);
