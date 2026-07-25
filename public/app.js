@@ -33,7 +33,7 @@ function renderProcesses() {
   $("processList").innerHTML = list.length ? list.map(p => `
     <div class="process-row">
       <div class="process-name"><strong>${escapeHtml(p.Name)}</strong><small>${Number(p.ThreadCount || 0)} thread · ${Number(p.HandleCount || 0)} handle</small></div>
-      <span>${p.IDProcess}</span><span>${bytes(p.WorkingSetPrivate)}</span><button class="process-action" data-process="${escapeHtml(p.Name)}">KAPAT</button>
+      <span>${p.IDProcess}</span><span>${bytes(p.WorkingSetPrivate)}</span><span><button class="process-action" data-details="${p.IDProcess}">BİLGİ</button> <button class="process-action" data-process="${escapeHtml(p.Name)}">KAPAT</button></span>
       <i class="bar-bg" style="width:${Math.max(1, Number(p.WorkingSetPrivate) / max * 100)}%"></i>
     </div>`).join("") : '<div class="empty">Eşleşen süreç bulunamadı.</div>';
 }
@@ -226,6 +226,7 @@ function renderAdvanced(){
   $("rulesList").innerHTML=advancedState.schedules.map((r,i)=>`<div>${escapeHtml(r.name)} · ${r.time} <button data-rule-remove="${i}">×</button></div>`).join("")||"<div>Kural yok</div>";
   $("quietEnabled").checked=advancedState.quietHours.enabled;$("quietStart").value=advancedState.quietHours.start;$("quietEnd").value=advancedState.quietHours.end;$("batteryDisable").checked=advancedState.disableOnBattery;
   $("totalReleased").textContent=bytes(advancedState.totalReleased||0);
+  $("protectedPathList").innerHTML=(advancedState.protectedPaths||[]).map((p,i)=>`<div>${escapeHtml(p)} <button data-path-remove="${i}">×</button></div>`).join("")||"<div>Korunan yol yok</div>";
 }
 async function loadAdvanced(){
   try{
@@ -246,3 +247,26 @@ document.addEventListener("keydown",e=>{if(e.ctrlKey&&e.shiftKey&&e.key.toLowerC
 document.querySelectorAll(".advanced-card").forEach(x=>{x.draggable=true;x.addEventListener("dragstart",()=>x.classList.add("dragging"));x.addEventListener("dragend",()=>x.classList.remove("dragging"))});
 document.querySelector(".advanced-grid").addEventListener("dragover",e=>{e.preventDefault();const active=document.querySelector(".advanced-card.dragging"),after=[...document.querySelectorAll(".advanced-card:not(.dragging)")].find(x=>e.clientY<x.getBoundingClientRect().top+x.offsetHeight/2);document.querySelector(".advanced-grid").insertBefore(active,after||null);localStorage.setItem("walkerDashboard",JSON.stringify([...document.querySelectorAll(".advanced-card")].map(x=>x.dataset.setting)))});
 loadAdvanced();setInterval(loadAdvanced,10000);
+let simulationTimer=null;
+$("simulate").addEventListener("click",async()=>{
+  if(simulationTimer){clearInterval(simulationTimer);simulationTimer=null;$("simulate").textContent="ETKİYİ SİMÜLE ET";toast("Otomatik optimizasyon iptal edildi.");return}
+  const s=await fetch(`${advancedUrl}/simulate`).then(r=>r.json());
+  if(!s.affected.length)return toast("Hedef listesinde çalışan uygulama yok.");
+  if(!confirm(`${s.affected.length} süreç, toplam ${bytes(s.total)} etkilenebilir.\n\n${s.warning}\n\n5 saniyelik geri sayım başlatılsın mı?`))return;
+  let left=5;$("simulate").textContent=`İPTAL ET · ${left}`;
+  simulationTimer=setInterval(()=>{left--;$("simulate").textContent=`İPTAL ET · ${left}`;if(left<=0){clearInterval(simulationTimer);simulationTimer=null;$("simulate").textContent="ETKİYİ SİMÜLE ET";$("optimize").click()}},1000);
+});
+$("processList").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-details]");if(!b)return;
+  $("processDetails").textContent="Bilgiler okunuyor…";$("processDialog").showModal();
+  const d=await fetch(`${advancedUrl}/process/${b.dataset.details}`).then(r=>r.json()).catch(x=>({error:String(x)}));
+  $("processDetails").textContent=JSON.stringify(d,null,2);
+});
+$("closeProcessDialog").addEventListener("click",()=>$("processDialog").close());
+$("addProtectedPath").addEventListener("click",()=>{const p=$("protectedPath").value.trim();if(!p)return;advancedState.protectedPaths=[...new Set([...(advancedState.protectedPaths||[]),p])];$("protectedPath").value="";saveAdvanced({protectedPaths:advancedState.protectedPaths})});
+$("protectedPathList").addEventListener("click",e=>{const b=e.target.closest("[data-path-remove]");if(!b)return;advancedState.protectedPaths.splice(Number(b.dataset.pathRemove),1);saveAdvanced({protectedPaths:advancedState.protectedPaths})});
+$("exportProfiles").addEventListener("click",()=>{const blob=new Blob([JSON.stringify({version:1,profiles:advancedState.profiles},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="walker-profiles.json";a.click();URL.revokeObjectURL(a.href)});
+$("importProfiles").addEventListener("click",()=>$("profileFile").click());
+$("profileFile").addEventListener("change",async e=>{try{const d=JSON.parse(await e.target.files[0].text());if(!Array.isArray(d.profiles))throw new Error("Geçersiz profil dosyası");await saveAdvanced({profiles:d.profiles.slice(0,50),activeProfile:d.profiles[0]?.name||"Dengeli"});toast("Profiller içe aktarıldı.")}catch(x){toast(x.message,true)}e.target.value=""});
+async function weekly(){const w=await fetch(`${advancedUrl}/weekly`).then(r=>r.json()).catch(()=>({samples:0}));$("weeklyRam").textContent=w.samples?`%${w.averageRam} / %${w.peakRam}`:"Veri bekleniyor";$("weeklyCpu").textContent=w.samples?`%${w.averageCpu}`:"—"}
+weekly();setInterval(weekly,60000);

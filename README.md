@@ -46,6 +46,12 @@ sayfasından indirebilirsiniz.
 - Yerel denetim günlüğü ve anonimleştirilmiş tanılama raporu
 - Aranabilir ve sürüklenerek düzenlenebilir gelişmiş dashboard
 - `Ctrl+Shift+O` hızlı optimizasyon kısayolu
+- İşlem yapmadan önce etkilenecek süreçleri gösteren optimizasyon simülasyonu
+- İptal edilebilir beş saniyelik otomasyon geri sayımı
+- Süreç dosya yolu, yayıncı, dijital imza ve SHA-256 ayrıntıları
+- Dosya yolu tabanlı kalıcı koruma
+- Haftalık RAM/CPU performans özeti
+- Profil JSON içe ve dışa aktarma
 
 ## Güvenlik modeli
 

@@ -43,14 +43,16 @@ function trimScriptForTargets(){
   const targets=JSON.stringify(settings.targets||[]).replace(/'/g,"''");
   const whitelist=JSON.stringify(settings.whitelist||[]).replace(/'/g,"''");
   const protectedTools=JSON.stringify(NETWORK_PROTECTED).replace(/'/g,"''");
+  let protectedPaths=[];try{protectedPaths=JSON.parse(fs.readFileSync(path.join(process.env.WALKER_DATA_DIR||__dirname,"advanced-settings.json"),"utf8")).protectedPaths||[]}catch{}
+  const pathRules=JSON.stringify(protectedPaths).replace(/'/g,"''");
   return String.raw`
 $ErrorActionPreference='Stop'
 Add-Type @'
 using System;using System.Runtime.InteropServices;public static class MemTrim{[DllImport("psapi.dll")]public static extern bool EmptyWorkingSet(IntPtr h);}
 '@
-$targets=ConvertFrom-Json '${targets}';$whitelist=ConvertFrom-Json '${whitelist}';$protected=ConvertFrom-Json '${protectedTools}'
+$targets=ConvertFrom-Json '${targets}';$whitelist=ConvertFrom-Json '${whitelist}';$protected=ConvertFrom-Json '${protectedTools}';$paths=ConvertFrom-Json '${pathRules}'
 $before=(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory;$ok=0;$names=@()
-Get-Process|Where-Object{$targets -contains $_.ProcessName -and $whitelist -notcontains $_.ProcessName -and $protected -notcontains $_.ProcessName.ToLower()}|ForEach-Object{try{if([MemTrim]::EmptyWorkingSet($_.Handle)){$ok++;$names+=$_.ProcessName}}catch{}}
+Get-Process|Where-Object{$procPath=try{$_.Path}catch{$null};$pathProtected=$false;foreach($root in $paths){if($procPath -and $procPath -like "$root*"){$pathProtected=$true}};$targets -contains $_.ProcessName -and $whitelist -notcontains $_.ProcessName -and $protected -notcontains $_.ProcessName.ToLower() -and -not $pathProtected}|ForEach-Object{try{if([MemTrim]::EmptyWorkingSet($_.Handle)){$ok++;$names+=$_.ProcessName}}catch{}}
 $after=(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory
 [ordered]@{success=$true;action='optimize';affected=$ok;names=@($names|Sort-Object -Unique);released=[math]::Max([int64]0,[int64](($after-$before)*1KB))}|ConvertTo-Json -Compress`;}
 const standbyScript=String.raw`
