@@ -27,6 +27,9 @@
       <div><strong>WALKER</strong><small>RAMMAP · BY AKGUNWALKER</small></div>
     </div>
     <div class="header-actions">
+      <button class="view-button" id="compactView" title="Kompakt görünüm">▦</button>
+      <button class="view-button" id="focusView" title="Odak görünümü">◎</button>
+      <span class="latency-badge" id="latencyBadge" title="Yerel servis gecikmesi">— ms</span>
       <button class="icon-btn notification-button" id="notificationButton" title="Bildirimler">●<b id="notificationCount"></b></button>
       <select id="quickTheme" class="quick-select" title="Tema"><option value="dark">🌙</option><option value="light">☀️</option><option value="system">◐</option><option value="contrast">◩</option></select>
       <select id="quickLanguage" class="quick-select" title="Dil"><option value="tr">TR</option><option value="en">EN</option></select>
@@ -34,6 +37,7 @@
       <button class="icon-btn" id="refresh" title="Yenile">↻</button>
     </div>
   </header>
+  <div class="offline-banner" id="offlineBanner" role="status">Yerel servis bağlantısı bekleniyor. Veriler yeniden bağlanınca otomatik güncellenecek.</div>
 
   <main>
     <section class="hero">
@@ -108,6 +112,10 @@
         <div class="advanced-card health-card" data-setting="sağlık puanı darboğaz analiz"><span>SİSTEM SAĞLIĞI</span><strong id="healthScore">— / 100</strong><small id="bottleneck">Analiz bekleniyor</small><div id="healthFactors" class="mini-list"></div></div>
         <div class="advanced-card io-process-card" data-setting="süreç disk ağ bağlantı telemetri"><span>SÜREÇ TELEMETRİSİ</span><div id="processIoList" class="mini-list"></div></div>
         <div class="advanced-card" data-setting="html json csv rapor dışa aktar"><span>PERFORMANS RAPORU</span><div class="inline"><button id="htmlReport">HTML RAPOR</button><button id="jsonReport">JSON RAPOR</button></div><small>Sağlık puanı ve darboğaz analizini dışa aktarın.</small></div>
+        <div class="advanced-card" data-setting="akıllı profil öneri öğrenme"><span>AKILLI PROFİL ÖNERİLERİ</span><div id="profileSuggestions" class="mini-list"></div><button id="refreshSuggestions" class="wide-action">ÖNERİLERİ YENİLE</button></div>
+        <div class="advanced-card io-process-card" data-setting="süreç ağacı bağımlılık alt süreç"><span>SÜREÇ AĞACI</span><div id="processTree" class="mini-list process-tree"></div></div>
+        <div class="advanced-card" data-setting="oturum geçmiş kullanım süre"><span>OTURUM ANALİZİ</span><strong id="sessionDuration">—</strong><small>uygulama çalışma süresi</small><div id="sessionSummary" class="mini-list"></div></div>
+        <div class="advanced-card" data-setting="erişilebilirlik renk körlüğü ölçek"><span>ERİŞİLEBİLİRLİK</span><label>Arayüz ölçeği <select id="uiScale"><option value="90">90%</option><option value="100">100%</option><option value="110">110%</option><option value="125">125%</option></select></label><label>Renk paleti <select id="colorVision"><option value="default">Varsayılan</option><option value="deuteranopia">Yeşil-kırmızı desteği</option><option value="tritanopia">Mavi-sarı desteği</option></select></label><button id="resetDashboard" class="wide-action">DASHBOARD'U SIFIRLA</button></div>
       </div>
     </section>
     <section class="grid">

@@ -67,6 +67,11 @@ function createWindow() {
   mainWindow.webContents.setWindowOpenHandler(({url})=>{if(/^https?:/.test(url))shell.openExternal(url);return{action:"deny"}});
   mainWindow.webContents.on("will-navigate",(e,url)=>{if(!url.startsWith(APP_URL))e.preventDefault()});
   mainWindow.on("close",e=>{if(!quitting){e.preventDefault();mainWindow.hide()}});
+  mainWindow.webContents.on("render-process-gone",(_event,details)=>{
+    new Notification({title:"Walker RAMMap kurtarma",body:`Arayüz beklenmedik şekilde kapandı (${details.reason}). Güvenli biçimde yeniden yükleniyor.`,icon:trayIcon()}).show();
+    setTimeout(()=>mainWindow?.reload(),1200);
+  });
+  mainWindow.webContents.on("unresponsive",()=>{if(!mainWindow?.isDestroyed())mainWindow.reload()});
 }
 function createWidget(){
  widgetWindow=new BrowserWindow({width:300,height:170,resizable:false,frame:false,transparent:true,alwaysOnTop:true,skipTaskbar:true,show:false,hasShadow:true,webPreferences:{contextIsolation:true,nodeIntegration:false,sandbox:true}});

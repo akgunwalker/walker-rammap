@@ -103,13 +103,16 @@ function update(data) {
 
 async function refresh() {
   if (loading) return; loading = true; $("refresh").style.transform = "rotate(180deg)";
+  const requestStarted=performance.now();
   try {
     const response = await fetch("/api/memory", { cache: "no-store" });
     if (!response.ok) throw new Error((await response.json()).detail);
     update(await response.json());
+    const latency=Math.round(performance.now()-requestStarted);$("latencyBadge").textContent=`${latency} ms`;$("latencyBadge").className=`latency-badge ${latency<150?"fast":latency>600?"slow":""}`;$("offlineBanner").classList.remove("show");
   } catch (error) {
     document.querySelector(".status").classList.add("error");
     $("statusText").textContent = "VERİ ALINAMADI";
+    $("offlineBanner").classList.add("show");$("latencyBadge").textContent="offline";$("latencyBadge").className="latency-badge slow";
     console.error(error);
   } finally { loading = false; $("refresh").style.transform = ""; }
 }
@@ -262,6 +265,39 @@ document.addEventListener("keydown",e=>{if(e.ctrlKey&&e.shiftKey&&e.key.toLowerC
 document.querySelectorAll(".advanced-card").forEach(x=>{x.draggable=true;x.addEventListener("dragstart",()=>x.classList.add("dragging"));x.addEventListener("dragend",()=>x.classList.remove("dragging"))});
 document.querySelector(".advanced-grid").addEventListener("dragover",e=>{e.preventDefault();const active=document.querySelector(".advanced-card.dragging"),after=[...document.querySelectorAll(".advanced-card:not(.dragging)")].find(x=>e.clientY<x.getBoundingClientRect().top+x.offsetHeight/2);document.querySelector(".advanced-grid").insertBefore(active,after||null);localStorage.setItem("walkerDashboard",JSON.stringify([...document.querySelectorAll(".advanced-card")].map(x=>x.dataset.setting)))});
 loadAdvanced();setInterval(loadAdvanced,10000);
+
+// Professional motion system: viewport reveals, tactile feedback and live-value emphasis.
+const revealTargets=document.querySelectorAll(".panel,.action-card");
+revealTargets.forEach((element,index)=>{
+  element.classList.add("reveal-item");
+  element.style.setProperty("--reveal-delay",`${Math.min(index%6*45,225)}ms`);
+});
+if("IntersectionObserver" in window){
+  const revealObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{
+    if(entry.isIntersecting){entry.target.classList.add("is-visible");revealObserver.unobserve(entry.target)}
+  }),{threshold:.08,rootMargin:"0px 0px -35px"});
+  revealTargets.forEach(element=>revealObserver.observe(element));
+}else revealTargets.forEach(element=>element.classList.add("is-visible"));
+
+document.addEventListener("pointerdown",event=>{
+  const target=event.target.closest("button,.action-card");
+  if(!target||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const rect=target.getBoundingClientRect(),ripple=document.createElement("span");
+  ripple.className="ui-ripple";ripple.style.left=`${event.clientX-rect.left}px`;ripple.style.top=`${event.clientY-rect.top}px`;
+  target.appendChild(ripple);ripple.addEventListener("animationend",()=>ripple.remove(),{once:true});
+});
+
+const liveValueObserver=new MutationObserver(records=>records.forEach(record=>{
+  const element=record.target;if(!(element instanceof HTMLElement)||!element.matches("strong,[id$='Value']"))return;
+  element.classList.remove("metric-updated");requestAnimationFrame(()=>element.classList.add("metric-updated"));
+}));
+document.querySelectorAll(".metrics strong,.sensor-metrics strong,.hero-stat strong,.health-card strong,#cpuValue").forEach(element=>liveValueObserver.observe(element,{childList:true,characterData:true,subtree:true}));
+
+function toggleView(name){document.body.classList.toggle(name);localStorage.setItem(`walker-${name}`,document.body.classList.contains(name)?"1":"0")}
+for(const name of["compact","focus-view"])document.body.classList.toggle(name,localStorage.getItem(`walker-${name}`)==="1");
+$("compactView").addEventListener("click",()=>toggleView("compact"));
+$("focusView").addEventListener("click",()=>toggleView("focus-view"));
+
 let simulationTimer=null;
 $("simulate").addEventListener("click",async()=>{
   if(simulationTimer){clearInterval(simulationTimer);simulationTimer=null;$("simulate").textContent="ETKİYİ SİMÜLE ET";toast("Otomatik optimizasyon iptal edildi.");return}
@@ -286,6 +322,25 @@ $("profileFile").addEventListener("change",async e=>{try{const d=JSON.parse(awai
 async function weekly(){const w=await advancedFetch("/weekly").then(r=>r.json()).catch(()=>({samples:0}));$("weeklyRam").textContent=w.samples?`%${w.averageRam} / %${w.peakRam}`:"Veri bekleniyor";$("weeklyCpu").textContent=w.samples?`%${w.averageCpu}`:"—"}
 weekly();setInterval(weekly,60000);
 async function loadHealth(){try{const h=await advancedFetch("/health").then(r=>r.json());$("healthScore").textContent=`${h.score} / 100`;$("bottleneck").textContent=h.bottleneck;$("healthFactors").innerHTML=h.factors.map(x=>`<div>${escapeHtml(x.label)} · %${Math.round(x.value)}</div>`).join("");document.querySelector(".health-card").dataset.severity=h.severity}catch{}}
+async function loadProfessionalInsights(){
+  try{
+    const [suggestions,tree]=await Promise.all([advancedFetch("/recommendations").then(r=>r.json()),advancedFetch("/process-tree").then(r=>r.json())]);
+    $("profileSuggestions").innerHTML=suggestions.map(x=>`<div><b>${escapeHtml(x.name)}</b> · ${bytes(x.memory)}<br><small>${escapeHtml(x.reason)}</small> <button data-smart-target="${escapeHtml(x.name)}">HEDEF ÖNER</button></div>`).join("")||"<div>Yeni öneri yok.</div>";
+    const known=new Set(tree.map(x=>x.pid));
+    $("processTree").innerHTML=tree.slice(0,35).map(x=>`<div style="padding-left:${known.has(x.parentPid)?16:0}px"><span><b>${escapeHtml(x.name)}</b> <small>PID ${x.pid} · üst ${x.parentPid}</small></span><small>${bytes(x.memory)}</small></div>`).join("")||"<div>Süreç ağacı alınamadı.</div>";
+    const hours=Math.floor(performance.now()/3600000),minutes=Math.floor(performance.now()/60000)%60;
+    $("sessionDuration").textContent=`${hours} sa ${minutes} dk`;
+    $("sessionSummary").innerHTML=`<div>${tree.length} süreç analiz edildi</div><div>${suggestions.length} profil önerisi üretildi</div>`;
+  }catch{}
+}
+$("profileSuggestions").addEventListener("click",event=>{const button=event.target.closest("[data-smart-target]");if(!button)return;currentSettings.targets=[...new Set([...(currentSettings.targets||[]),button.dataset.smartTarget])];saveSettings();toast(`${button.dataset.smartTarget} hedef listesine eklendi.`)});
+$("refreshSuggestions").addEventListener("click",loadProfessionalInsights);
+$("uiScale").value=localStorage.getItem("walker-ui-scale")||"100";document.documentElement.style.fontSize=`${$("uiScale").value}%`;
+$("colorVision").value=localStorage.getItem("walker-color-vision")||"default";document.documentElement.dataset.colorVision=$("colorVision").value;
+$("uiScale").addEventListener("change",()=>{localStorage.setItem("walker-ui-scale",$("uiScale").value);document.documentElement.style.fontSize=`${$("uiScale").value}%`});
+$("colorVision").addEventListener("change",()=>{localStorage.setItem("walker-color-vision",$("colorVision").value);document.documentElement.dataset.colorVision=$("colorVision").value});
+$("resetDashboard").addEventListener("click",()=>{localStorage.removeItem("walkerDashboard");localStorage.removeItem("walker-compact");localStorage.removeItem("walker-focus-view");location.reload()});
+loadProfessionalInsights();setInterval(loadProfessionalInsights,60000);
 function downloadData(name,data,type){const a=document.createElement("a"),url=URL.createObjectURL(new Blob([data],{type}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 $("htmlReport").addEventListener("click",async()=>{const r=await fetch(`${advancedUrl}/report?format=html&session=${encodeURIComponent(walkerSession)}`);downloadData("walker-rammap-report.html",await r.text(),"text/html")});
 $("jsonReport").addEventListener("click",async()=>{const d=await advancedFetch("/report").then(r=>r.json());downloadData("walker-rammap-report.json",JSON.stringify(d,null,2),"application/json")});

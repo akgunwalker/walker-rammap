@@ -59,6 +59,14 @@ async function foregroundFullscreen(){
 using System;using System.Runtime.InteropServices;public static class WalkerWindow{[DllImport("user32.dll")]public static extern IntPtr GetForegroundWindow();[DllImport("user32.dll")]public static extern bool GetWindowRect(IntPtr h,out RECT r);public struct RECT{public int Left,Top,Right,Bottom;}}
 '@;$h=[WalkerWindow]::GetForegroundWindow();$r=New-Object WalkerWindow+RECT;[void][WalkerWindow]::GetWindowRect($h,[ref]$r);$screen=[Windows.Forms.Screen]::FromHandle($h).Bounds;[ordered]@{fullscreen=($r.Left-le $screen.Left-and$r.Top-le $screen.Top-and$r.Right-ge $screen.Right-and$r.Bottom-ge $screen.Bottom);title=(Get-Process|Where-Object MainWindowHandle -eq $h|Select-Object -First 1 -ExpandProperty ProcessName)}|ConvertTo-Json -Compress`))}catch{return{fullscreen:false,title:null}}
 }
+async function processTree(){
+ try{return JSON.parse(await ps(`$all=Get-CimInstance Win32_Process|Select-Object ProcessId,ParentProcessId,Name,WorkingSetSize;$roots=$all|Where-Object{$_.ProcessId -gt 4}|Sort-Object WorkingSetSize -Descending|Select-Object -First 60;@($roots|ForEach-Object{[ordered]@{pid=$_.ProcessId;parentPid=$_.ParentProcessId;name=$_.Name;memory=[int64]$_.WorkingSetSize}})|ConvertTo-Json -Compress`))}catch{return[]}
+}
+async function recommendations(){
+ const main=`http://127.0.0.1:${process.env.PORT||4173}`,[memory,settings]=await Promise.all([fetch(`${main}/api/memory`).then(r=>r.json()),fetch(`${main}/api/settings`).then(r=>r.json())]),white=new Set((settings.whitelist||[]).map(x=>String(x).toLowerCase()));
+ const top=(memory.processes||[]).filter(p=>!white.has(String(p.Name).toLowerCase())).sort((a,b)=>Number(b.WorkingSetPrivate)-Number(a.WorkingSetPrivate)).slice(0,5);
+ return top.map(p=>({name:p.Name,memory:Number(p.WorkingSetPrivate||0),reason:Number(p.WorkingSetPrivate||0)>1073741824?"Çok yüksek bellek kullanımı":"Profil hedefi olarak değerlendirilebilir",action:"suggest-target"}));
+}
 function weekly(){
  const file=path.join(DATA,"history.jsonl"),since=Date.now()-7*864e5;let rows=[];
  try{rows=fs.readFileSync(file,"utf8").trim().split(/\r?\n/).filter(Boolean).map(JSON.parse).filter(x=>x.timestamp>=since)}catch{}
@@ -101,6 +109,8 @@ const server=http.createServer(async(req,res)=>{
   if(req.url.startsWith("/api/process/"))return send(res,200,await processDetails(Number(req.url.split("/").pop())));
   if(req.url==="/api/weekly")return send(res,200,weekly());
   if(req.url==="/api/health")return send(res,200,await health());
+  if(req.url==="/api/process-tree")return send(res,200,await processTree());
+  if(req.url==="/api/recommendations")return send(res,200,await recommendations());
   if(req.url.startsWith("/api/report")){
    const data=await health();if(requestUrl.searchParams.get("format")==="html"){const html=htmlReport(data);res.writeHead(200,{"Content-Type":"text/html; charset=utf-8","Content-Disposition":'attachment; filename="walker-rammap-report.html"'});return res.end(html)}
    return send(res,200,data);

@@ -6,7 +6,7 @@ const vm=require("node:vm");
 test("package and desktop entry are valid",()=>{
   const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
   assert.equal(pkg.main,"desktop.js");
-  assert.equal(pkg.version,"2.0.1");
+  assert.equal(pkg.version,"2.1.0");
   assert.equal(pkg.author,"akgunwalker");
   assert.ok(pkg.build.files.includes("advanced-server.js"));
 });
