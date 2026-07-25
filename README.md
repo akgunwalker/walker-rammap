@@ -129,8 +129,8 @@ Yeni bir Git etiketi gönderildiğinde GitHub Actions paketleri otomatik olarak
 üretir, Release'e yükler ve `SHA256SUMS.txt` dosyasını yayınlar:
 
 ```powershell
-git tag -a v2.0.0 -m "Walker RAMMap 2.0.0"
-git push origin v2.0.0
+git tag -a v2.0.1 -m "Walker RAMMap 2.0.1"
+git push origin v2.0.1
 ```
 
 ## Yönetici yetkisi
